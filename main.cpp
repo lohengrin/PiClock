@@ -20,26 +20,17 @@ bool Backlight = OFF;
 bool ConfigureTime_MODE = OFF;
 uint Selection = HRS;
 
-struct datetime_t {
-         int year;
-         int month;
-         int day;
-         int dotw; // 0 is Sunday, so 5 is Friday
-         int hour;
-         int min;
-         int sec;
-};
-
-
-   // Start on Friday 26th of March 2021 12:34:00
-   datetime_t t = {
-         .year  = 2021,
-         .month = 03,
-         .day   = 26,
-         .dotw  = 5, // 0 is Sunday, so 5 is Friday
-         .hour  = 12,
-         .min   = 34,
-         .sec   = 00
+// Start on Friday 26th of March 2021 12:34:00
+struct tm t = {
+         .tm_sec   = 00,
+         .tm_min   = 34,
+         .tm_hour  = 12,
+         .tm_mday   = 26,
+         .tm_mon = 03,
+         .tm_year  = 121,
+         .tm_wday  = 5, // 0 is Sunday, so 5 is Friday
+         .tm_yday  = 12,
+         .tm_isdst  = 12
    };
 
 #if 0
@@ -110,7 +101,7 @@ int main()
    }
 
    // Init SPI port
-   int spi = spiOpen(0, 1000000, 0);
+   int spi = spiOpen(0, 10000000, 0);
 
    // Configure GPIO directions
    gpioSetMode(PIN_CS1, PI_OUTPUT);
@@ -140,50 +131,56 @@ int main()
 
     lcdStartPx(spi);
 
-    while(1){
+    while(1)
+    {
 
-       //if(ConfigureTime_MODE == OFF){
-       //  rtc_get_datetime(&t);}
+       if(ConfigureTime_MODE == OFF)
+       {
+	 time_t tt = time(nullptr);
+	 struct tm *ttt = localtime(&tt);
 
-       if(t.hour >= 1 & t.hour <= 9){
+	 t = *ttt;
+       }
+
+       if(t.tm_hour >= 1 & t.tm_hour <= 9){
           lcdDrawNumber(spi,display1,0);
-          lcdDrawNumber(spi,display2,t.hour);
-       }else if(t.hour >= 10 & t.hour <= 12){
+          lcdDrawNumber(spi,display2,t.tm_hour);
+       }else if(t.tm_hour >= 10 & t.tm_hour <= 12){
           lcdDrawNumber(spi,display1,1);
-          lcdDrawNumber(spi,display2,t.hour-10);
-       }else if(t.hour >= 13 & t.hour <= 21){
+          lcdDrawNumber(spi,display2,t.tm_hour-10);
+       }else if(t.tm_hour >= 13 & t.tm_hour <= 21){
           lcdDrawNumber(spi,display1,0);
-          lcdDrawNumber(spi,display2,t.hour-12);
-       }else if(t.hour >= 22 ){
+          lcdDrawNumber(spi,display2,t.tm_hour-12);
+       }else if(t.tm_hour >= 22 ){
           lcdDrawNumber(spi,display1,1);
-          lcdDrawNumber(spi,display2,t.hour-22);
-       }else if (t.hour == 0){
+          lcdDrawNumber(spi,display2,t.tm_hour-22);
+       }else if (t.tm_hour == 0){
           lcdDrawNumber(spi,display1,1);
           lcdDrawNumber(spi,display2,2);
        }
 
-       if(t.min >= 0 & t.min <= 9){
+       if(t.tm_min >= 0 & t.tm_min <= 9){
           lcdDrawNumber(spi,display4,0);
-          lcdDrawNumber(spi,display5,t.min);
-       }else if(t.min >= 10 & t.min <= 19){
+          lcdDrawNumber(spi,display5,t.tm_min);
+       }else if(t.tm_min >= 10 & t.tm_min <= 19){
           lcdDrawNumber(spi,display4,1);
-          lcdDrawNumber(spi,display5,t.min-10);
-       }else if(t.min >= 20 & t.min <= 29){
+          lcdDrawNumber(spi,display5,t.tm_min-10);
+       }else if(t.tm_min >= 20 & t.tm_min <= 29){
           lcdDrawNumber(spi,display4,2);
-          lcdDrawNumber(spi,display5,t.min-20);
-       }else if(t.min >= 30 & t.min <= 39 ){
+          lcdDrawNumber(spi,display5,t.tm_min-20);
+       }else if(t.tm_min >= 30 & t.tm_min <= 39 ){
           lcdDrawNumber(spi,display4,3);
-          lcdDrawNumber(spi,display5,t.min-30);
-       }else if(t.min >= 40 & t.min <= 49 ){
+          lcdDrawNumber(spi,display5,t.tm_min-30);
+       }else if(t.tm_min >= 40 & t.tm_min <= 49 ){
           lcdDrawNumber(spi,display4,4);
-          lcdDrawNumber(spi,display5,t.min-40);
-       }else if(t.min >= 50 & t.min <= 59 ){
+          lcdDrawNumber(spi,display5,t.tm_min-40);
+       }else if(t.tm_min >= 50 & t.tm_min <= 59 ){
           lcdDrawNumber(spi,display4,5);
-          lcdDrawNumber(spi,display5,t.min-50);
+          lcdDrawNumber(spi,display5,t.tm_min-50);
        }
 
 
-       if(t.hour < 12 )
+       if(t.tm_hour < 12 )
           lcdDrawNumber(spi,display6,AM);
       else
           lcdDrawNumber(spi,display6,PM);
@@ -208,138 +205,13 @@ int main()
             lcdDrawNumber(spi,display5,SPACE);
             usleep(200000);
          }
-         
-         
       }
-       
+
+
+      usleep(200000);
     }
-
-
 
    gpioTerminate();
-#if 0
-//    PIO pio = pio0;
-    uint sm = 0;
-//    uint offset = pio_add_program(pio, &SPILCD_program);
-    lcdPIOInit(pio, sm, offset, PIN_SDI, PIN_SCK, SERIAL_CLK_DIV);
-#if 0
-    gpio_set_irq_enabled_with_callback(PIN_BTNA, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-    gpio_set_irq_enabled_with_callback(PIN_BTNB, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-    gpio_set_irq_enabled_with_callback(PIN_BTNC, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-    gpio_set_irq_enabled_with_callback(PIN_BTND, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-#endif
-
-    gpio_init(ONBOARD_LED);
-    gpio_set_dir(ONBOARD_LED, GPIO_OUT);
-
-    gpio_init(PIN_CS1);
-    gpio_init(PIN_CS2);
-    gpio_init(PIN_CS3);
-    gpio_init(PIN_CS4);
-    gpio_init(PIN_CS5);
-    gpio_init(PIN_CS6);
-    gpio_init(PIN_DC);
-    gpio_init(PIN_RST);
-    gpio_init(PIN_BLK);
-
-    gpio_set_dir(PIN_CS1, GPIO_OUT);
-    gpio_set_dir(PIN_CS2, GPIO_OUT);
-    gpio_set_dir(PIN_CS3, GPIO_OUT);
-    gpio_set_dir(PIN_CS4, GPIO_OUT);
-    gpio_set_dir(PIN_CS5, GPIO_OUT);
-    gpio_set_dir(PIN_CS6, GPIO_OUT);
-    gpio_set_dir(PIN_DC, GPIO_OUT);
-    gpio_set_dir(PIN_RST, GPIO_OUT);
-    gpio_set_dir(PIN_BLK, GPIO_OUT);
-
-    gpio_put(PIN_CS1, 0);
-    gpio_put(PIN_CS2, 0);
-    gpio_put(PIN_CS3, 0);
-    gpio_put(PIN_CS4, 0);
-    gpio_put(PIN_CS5, 0);
-    gpio_put(PIN_CS6, 0);
-    gpio_put(PIN_RST, 1);
-    lcdInit(pio, sm, st7735_initSeq);
-    gpio_put(PIN_BLK, ON);
-    Backlight = ON;
-    gpio_put(ONBOARD_LED, 1);
-
-    lcdStartPx(spi);
-
-    while(1){
-
-       if(ConfigureTime_MODE == OFF){
-         rtc_get_datetime(&t);}
-
-       if(t.hour >= 1 & t.hour <= 9){
-          lcdDrawNumber(spi,display1,0);
-          lcdDrawNumber(spi,display2,t.hour);
-       }else if(t.hour >= 10 & t.hour <= 12){
-          lcdDrawNumber(spi,display1,1);
-          lcdDrawNumber(spi,display2,t.hour-10);
-       }else if(t.hour >= 13 & t.hour <= 21){
-          lcdDrawNumber(spi,display1,0);
-          lcdDrawNumber(spi,display2,t.hour-12);
-       }else if(t.hour >= 22 ){
-          lcdDrawNumber(spi,display1,1);
-          lcdDrawNumber(spi,display2,t.hour-22);
-       }else if (t.hour == 0){
-          lcdDrawNumber(spi,display1,1);
-          lcdDrawNumber(spi,display2,2);
-       }
-
-       if(t.min >= 0 & t.min <= 9){
-          lcdDrawNumber(spi,display4,0);
-          lcdDrawNumber(spi,display5,t.min);
-       }else if(t.min >= 10 & t.min <= 19){
-          lcdDrawNumber(spi,display4,1);
-          lcdDrawNumber(spi,display5,t.min-10);
-       }else if(t.min >= 20 & t.min <= 29){
-          lcdDrawNumber(spi,display4,2);
-          lcdDrawNumber(spi,display5,t.min-20);
-       }else if(t.min >= 30 & t.min <= 39 ){
-          lcdDrawNumber(spi,display4,3);
-          lcdDrawNumber(spi,display5,t.min-30);
-       }else if(t.min >= 40 & t.min <= 49 ){
-          lcdDrawNumber(spi,display4,4);
-          lcdDrawNumber(spi,display5,t.min-40);
-       }else if(t.min >= 50 & t.min <= 59 ){
-          lcdDrawNumber(spi,display4,5);
-          lcdDrawNumber(spi,display5,t.min-50);
-       }
-
-
-       if(t.hour < 12 )
-          lcdDrawNumber(spi,display6,AM);
-      else
-          lcdDrawNumber(spi,display6,PM);
-
-
-      if(ConfigureTime_MODE == OFF){
-         lcdDrawNumber(spi,display3,COLON);
-         usleep(500000);
-         lcdDrawNumber(spi,display3,SPACE);
-         usleep(500000);
-      }else{
-         if(Selection  == HRS){
-            usleep(200000);
-            lcdDrawNumber(spi,display1,SPACE);
-            lcdDrawNumber(spi,display2,SPACE);
-            lcdDrawNumber(spi,display3,COLON);
-            usleep(200000);
-         }else if(Selection == MINS){
-            usleep(200000);
-            lcdDrawNumber(spi,display3,COLON);
-            lcdDrawNumber(spi,display4,SPACE);
-            lcdDrawNumber(spi,display5,SPACE);
-            usleep(200000);
-         }
-         
-         
-      }
-       
-    }
-#endif
 
    return 0;
 }
