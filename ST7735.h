@@ -139,7 +139,7 @@
 #define ST7735_GMCTRP1 		0xE0
 #define ST7735_GMCTRN1 		0xE1
 
-static const uint8_t st7735_initSeq[] = {  // Format: cmd length (including cmd byte), post delay in units of 5 ms, then cmd payload
+static char st7735_initSeq[] = {  // Format: cmd length (including cmd byte), post delay in units of 5 ms, then cmd payload
         1, 20, ST7735_SWRESET,                                      // Software reset
         1, 10, ST7735_SLPOUT,                                       // Exit sleep mode
         4, 0 , ST7735_FRMCTR1,0x01,0x2C,0x2D,                       // Frame rate control  
@@ -163,11 +163,8 @@ static const uint8_t st7735_initSeq[] = {  // Format: cmd length (including cmd 
         0                                                           // Terminate list
 };
 
-void lcdInit(PIO pio, uint sm, const uint8_t *init_seq);
-
-#if 0
-void lcdStartPx(PIO pio, uint sm);
-void lcdDrawNumber(PIO pio, uint sm, uint8_t Display, uint8_t Number);
-#endif
+void lcdInit(unsigned int spi, char *init_seq);
+void lcdStartPx(unsigned int spi);
+void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number);
 
 #endif /* ST7735_H_ */
