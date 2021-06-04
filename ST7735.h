@@ -11,22 +11,22 @@
 #include "clockWood.h"
 #include "clockNixie.h"
 
-#define zero_Theme      zero_Flip
-#define one_Theme       one_Flip
-#define two_Theme       two_Flip
-#define three_Theme     three_Flip    
-#define four_Theme      four_Flip
-#define five_Theme      five_Flip
-#define six_Theme       six_Flip
-#define seven_Theme     seven_Flip
-#define eight_Theme     eight_Flip
-#define nine_Theme      nine_Flip
-#define colon_Theme     colon_Flip
-#define slash_Theme     slash_Flip
-#define space_Theme     space_Flip
-#define am_Theme        am_Flip
-#define pm_Theme        pm_Flip
-#define heart_Theme     heart_Flip
+#define zero_Theme      zero_VFD
+#define one_Theme       one_VFD
+#define two_Theme       two_VFD
+#define three_Theme     three_VFD    
+#define four_Theme      four_VFD
+#define five_Theme      five_VFD
+#define six_Theme       six_VFD
+#define seven_Theme     seven_VFD
+#define eight_Theme     eight_VFD
+#define nine_Theme      nine_VFD
+#define colon_Theme     colon_VFD
+#define slash_Theme     slash_VFD
+#define space_Theme     space_VFD
+#define am_Theme        am_VFD
+#define pm_Theme        pm_VFD
+#define heart_Theme     heart_VFD
 
 #define amAlarm_Theme   amAlarm_Ink
 #define pmAlarm_Theme   pmAlarm_Ink
