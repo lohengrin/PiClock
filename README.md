@@ -1,7 +1,22 @@
 # PiClock
 Raspberry Pi Clock using SPI Display Array
 
-## Pinout
+Display Array from Savage Electronics
+https://savageelectronics.com/spi-display-array-board-clock/
+
+Code is based on the Raspberry Pi Pico version of Savage Electronics.
+Modified for Raspberry Pi and optimized.
+
+## Main modifications
+- Removed Clock configuration: No need for clock configuration, use system time synchonized by NTP
+- Dynamic theming (instead of compilation time): Button A cycle trought all theme
+- Add 24h mode
+- Large code simplifying
+
+## System test bench
+![Test setup](TestSetup.jpg)
+
+## Pinout used
 |Display     |    PI    |   PIN   |
 |------------|----------|---------|
 |VDD         |   3v3    |    1    |
