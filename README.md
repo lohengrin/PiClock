@@ -20,5 +20,5 @@ Raspberry Pi Clock using SPI Display Array
 |CS5	     |   GP17   |    11   |
 |CS6	     |   GP4    |    7    |
 |GND         |   Ground |    20   |
-|BTA         |          |         |
+|BTA         |   GP24   |    18   |
 |BTC         |          |         |

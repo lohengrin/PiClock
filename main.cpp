@@ -9,88 +9,28 @@
 #define HRS 0
 #define MINS 1
 
-#define OFF 0
-#define ON 1
-
-#define PIN_BTNA 6
+#define PIN_BTNA 18
 #define PIN_BTNB 7
 #define PIN_BTNC 8
 #define PIN_BTND 9
 
-bool Backlight = OFF;
-bool ConfigureTime_MODE = OFF;
-uint Selection = HRS;
+bool Backlight = false;
 bool mode24h = true;
+Theme currentTheme = Theme::VFD;
 
-// Start on Friday 26th of March 2021 12:34:00
-struct tm t = {
-	.tm_sec = 00,
-	.tm_min = 34,
-	.tm_hour = 12,
-	.tm_mday = 26,
-	.tm_mon = 03,
-	.tm_year = 121,
-	.tm_wday = 5, // 0 is Sunday, so 5 is Friday
-	.tm_yday = 12,
-	.tm_isdst = 12};
-
-#if 0
-
-void gpio_callback(uint gpio, uint32_t events) {
-
-   if(gpio == PIN_BTND){
-      if(ConfigureTime_MODE == ON){
-         ConfigureTime_MODE = OFF;
-         t.sec = 0;
-         rtc_set_datetime(&t);
-      }else if(ConfigureTime_MODE == OFF){
-         ConfigureTime_MODE = ON; // Configuration Mode Enabled
-      }
-    }
-
-    if(ConfigureTime_MODE){
-
-      if(gpio == PIN_BTNA){
-         if(Selection  == HRS){
-            if(t.hour < 23){
-               t.hour += 1;}}
-         else if(Selection == MINS){
-            if(t.min < 59){
-               t.min += 1;}}
-      }
-
-      if(gpio == PIN_BTNB){
-         if(Selection  == HRS){
-            if(t.hour > 0 ){
-               t.hour -= 1;}}
-         else if(Selection == MINS){
-            if(t.min > 0){
-               t.min -= 1;}}
-      }
-
-      if(gpio == PIN_BTNC){
-         if(Selection  == HRS){
-            Selection = MINS;}
-         else if(Selection == MINS){
-            Selection = HRS;}
-      }
-
-    }else if(ConfigureTime_MODE == OFF){
-
-       if(gpio == PIN_BTNC){
-         if(Backlight  == ON){
-            gpio_put(PIN_BLK, OFF);
-            Backlight = OFF;
-         }else if(Backlight == OFF){
-            gpio_put(PIN_BLK, ON);
-            Backlight = ON;
-            }
-      }
-
-    }
+// call aFunction whenever GPIO changes state
+void gpio_callback(int gpio, int level, uint32_t tick)
+{
+	std::cout << "Bouton press: GPIO: " << gpio << "  Level: " << level << "  Tick: " << tick << std::endl;
+	if (gpio == PIN_BTNA && level == 0)
+	{
+		currentTheme = (Theme)((int)currentTheme + 1);
+		if (currentTheme == Theme::Theme_Number)
+			currentTheme = Theme::Digital;
+	}
 }
-#endif
 
+// Main
 int main()
 {
 	int res = gpioInitialise();
@@ -114,6 +54,12 @@ int main()
 	gpioSetMode(PIN_RST, PI_OUTPUT);
 	gpioSetMode(PIN_BLK, PI_OUTPUT);
 
+	// Buttons
+	gpioSetMode(PIN_BTNA, PI_INPUT);
+	gpioSetPullUpDown(PIN_BTNA, PI_PUD_UP);
+	//gpioNoiseFilter(PIN_BTNA, 100, 1);
+	//gpioSetAlertFunc(PIN_BTNA, gpio_callback);
+
 	// Select all screens (to configure all at same time)
 	gpioWrite(PIN_CS1, 0);
 	gpioWrite(PIN_CS2, 0);
@@ -125,143 +71,62 @@ int main()
 
 	lcdInit(spi, st7735_initSeq);
 
-	gpioWrite(PIN_BLK, ON);
-	Backlight = ON;
+	gpioWrite(PIN_BLK, 1);
+	Backlight = true;
 
 	lcdStartPx(spi);
 
 	Digits digits;
-	changeDigits(digits, Theme::Matrix);
 
 	while (1)
 	{
+		// Update digit style according to current theme (changed by Button A)
+		changeDigits(digits, currentTheme);
 
-		if (ConfigureTime_MODE == OFF)
-		{
-			time_t tt = time(nullptr);
-			struct tm *ttt = localtime(&tt);
-			t = *ttt;
-		}
+		// Get System time
+		time_t tim = time(nullptr);
+		struct tm t = *localtime(&tim);
 
+		// Display digits on LCD
 		if (!mode24h)
 		{
-			if (t.tm_hour >= 1 & t.tm_hour <= 9)
+			// 12h mode
+			if (t.tm_hour >= 1 && t.tm_hour <= 12)
 			{
-				lcdDrawNumber(spi, display1, 0, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour, digits);
+				lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
 			}
-			else if (t.tm_hour >= 10 & t.tm_hour <= 12)
+			else if (t.tm_hour >= 13 & t.tm_hour < 24)
 			{
-				lcdDrawNumber(spi, display1, 1, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour - 10, digits);
-			}
-			else if (t.tm_hour >= 13 & t.tm_hour <= 21)
-			{
-				lcdDrawNumber(spi, display1, 0, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour - 12, digits);
-			}
-			else if (t.tm_hour >= 22)
-			{
-				lcdDrawNumber(spi, display1, 1, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour - 22, digits);
+				lcdDrawNumber(spi, display1, (t.tm_hour-12)/10, digits);
+				lcdDrawNumber(spi, display2, (t.tm_hour-12)%10, digits);
 			}
 			else if (t.tm_hour == 0)
 			{
 				lcdDrawNumber(spi, display1, 1, digits);
 				lcdDrawNumber(spi, display2, 2, digits);
 			}
+
+			lcdDrawNumber(spi, display6, (t.tm_hour < 12)?AM:PM, digits);
 		}
 		else
 		{
-			if (t.tm_hour >= 1 & t.tm_hour <= 9)
-			{
-				lcdDrawNumber(spi, display1, 0, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour, digits);
-			}
-			else if (t.tm_hour >= 10 & t.tm_hour < 20)
-			{
-				lcdDrawNumber(spi, display1, 1, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour - 10, digits);
-			}
-			else
-			{
-				lcdDrawNumber(spi, display1, 2, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour - 20, digits);
-			}
-
-		}
-
-		if (t.tm_min >= 0 & t.tm_min <= 9)
-		{
-			lcdDrawNumber(spi, display4, 0, digits);
-			lcdDrawNumber(spi, display5, t.tm_min, digits);
-		}
-		else if (t.tm_min >= 10 & t.tm_min <= 19)
-		{
-			lcdDrawNumber(spi, display4, 1, digits);
-			lcdDrawNumber(spi, display5, t.tm_min - 10, digits);
-		}
-		else if (t.tm_min >= 20 & t.tm_min <= 29)
-		{
-			lcdDrawNumber(spi, display4, 2, digits);
-			lcdDrawNumber(spi, display5, t.tm_min - 20, digits);
-		}
-		else if (t.tm_min >= 30 & t.tm_min <= 39)
-		{
-			lcdDrawNumber(spi, display4, 3, digits);
-			lcdDrawNumber(spi, display5, t.tm_min - 30, digits);
-		}
-		else if (t.tm_min >= 40 & t.tm_min <= 49)
-		{
-			lcdDrawNumber(spi, display4, 4, digits);
-			lcdDrawNumber(spi, display5, t.tm_min - 40, digits);
-		}
-		else if (t.tm_min >= 50 & t.tm_min <= 59)
-		{
-			lcdDrawNumber(spi, display4, 5, digits);
-			lcdDrawNumber(spi, display5, t.tm_min - 50, digits);
-		}
-
-		if (!mode24h)
-		{
-			if (t.tm_hour < 12)
-				lcdDrawNumber(spi, display6, AM, digits);
-			else
-				lcdDrawNumber(spi, display6, PM, digits);
-		}
-		else
-		{
+			// 24h mode
+			lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
+			lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
 			lcdDrawNumber(spi, display6, SPACE, digits);
 		}
 
-		if (ConfigureTime_MODE == OFF)
-		{
-			lcdDrawNumber(spi, display3, COLON, digits);
-			usleep(500000);
-			lcdDrawNumber(spi, display3, SPACE, digits);
-			usleep(500000);
-		}
-		else
-		{
-			if (Selection == HRS)
-			{
-				usleep(200000);
-				lcdDrawNumber(spi, display1, SPACE, digits);
-				lcdDrawNumber(spi, display2, SPACE, digits);
-				lcdDrawNumber(spi, display3, COLON, digits);
-				usleep(200000);
-			}
-			else if (Selection == MINS)
-			{
-				usleep(200000);
-				lcdDrawNumber(spi, display3, COLON, digits);
-				lcdDrawNumber(spi, display4, SPACE, digits);
-				lcdDrawNumber(spi, display5, SPACE, digits);
-				usleep(200000);
-			}
-		}
+		// Minutes
+		lcdDrawNumber(spi, display4, t.tm_min/10, digits);
+		lcdDrawNumber(spi, display5, t.tm_min%10, digits);
 
-		usleep(200000);
+		// Blinking colon on each second
+		lcdDrawNumber(spi, display3, ((t.tm_sec % 2) == 0)? COLON:SPACE, digits);
+
+		// Wait a little bit to reduce cpu load
+		usleep(50000);
+		//std::cout << gpioRead(PIN_BTNA) << std::endl;
 	}
 
 	gpioTerminate();
