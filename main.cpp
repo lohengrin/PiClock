@@ -9,7 +9,7 @@
 #define HRS 0
 #define MINS 1
 
-#define PIN_BTNA 18
+#define PIN_BTNA 24
 #define PIN_BTNB 7
 #define PIN_BTNC 8
 #define PIN_BTND 9
@@ -21,7 +21,6 @@ Theme currentTheme = Theme::VFD;
 // call aFunction whenever GPIO changes state
 void gpio_callback(int gpio, int level, uint32_t tick)
 {
-	std::cout << "Bouton press: GPIO: " << gpio << "  Level: " << level << "  Tick: " << tick << std::endl;
 	if (gpio == PIN_BTNA && level == 0)
 	{
 		currentTheme = (Theme)((int)currentTheme + 1);
@@ -30,7 +29,7 @@ void gpio_callback(int gpio, int level, uint32_t tick)
 	}
 }
 
-// Main
+// ============ Main
 int main()
 {
 	int res = gpioInitialise();
@@ -56,9 +55,7 @@ int main()
 
 	// Buttons
 	gpioSetMode(PIN_BTNA, PI_INPUT);
-	gpioSetPullUpDown(PIN_BTNA, PI_PUD_UP);
-	//gpioNoiseFilter(PIN_BTNA, 100, 1);
-	//gpioSetAlertFunc(PIN_BTNA, gpio_callback);
+	gpioSetAlertFunc(PIN_BTNA, gpio_callback);
 
 	// Select all screens (to configure all at same time)
 	gpioWrite(PIN_CS1, 0);
