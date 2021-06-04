@@ -9,22 +9,23 @@
 #include "clockNixie.h"
 
 #define SETTHEME(THEME) \
-digits.zero_Theme = zero_##THEME; \
-digits.one_Theme = one_##THEME; \
-digits.two_Theme = two_##THEME; \
-digits.three_Theme = three_##THEME; \
-digits.four_Theme = four_##THEME; \
-digits.five_Theme = five_##THEME; \
-digits.six_Theme = six_##THEME; \
-digits.seven_Theme = seven_##THEME; \
-digits.eight_Theme = eight_##THEME; \
-digits.nine_Theme = nine_##THEME; \
-digits.colon_Theme = colon_##THEME; \
-digits.slash_Theme = slash_##THEME; \
-digits.space_Theme = space_##THEME; \
-digits.am_Theme = am_##THEME; \
-digits.pm_Theme = pm_##THEME; \
-digits.heart_Theme = heart_##THEME;
+digits.d[0] = zero_##THEME; \
+digits.d[1] = one_##THEME; \
+digits.d[2] = two_##THEME; \
+digits.d[3] = three_##THEME; \
+digits.d[4] = four_##THEME; \
+digits.d[5] = five_##THEME; \
+digits.d[6] = six_##THEME; \
+digits.d[7] = seven_##THEME; \
+digits.d[8] = eight_##THEME; \
+digits.d[9] = nine_##THEME; \
+digits.d[10] = colon_##THEME; \
+digits.d[11] = slash_##THEME; \
+digits.d[12] = space_##THEME; \
+digits.d[13] = am_##THEME; \
+digits.d[14] = pm_##THEME; \
+digits.d[15] = heart_##THEME; \
+digits.theme = Theme::THEME;
 
 void changeDigits(Digits& digits, Theme newTheme)
 {

@@ -88,25 +88,20 @@ int main()
 		struct tm t = *localtime(&tim);
 
 		// Display digits on LCD
+		// Hours + AM/PM for 12h mode
 		if (!mode24h)
 		{
 			// 12h mode
-			if (t.tm_hour >= 1 && t.tm_hour <= 12)
-			{
-				lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
-				lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
-			}
-			else if (t.tm_hour >= 13 & t.tm_hour < 24)
-			{
-				lcdDrawNumber(spi, display1, (t.tm_hour-12)/10, digits);
-				lcdDrawNumber(spi, display2, (t.tm_hour-12)%10, digits);
-			}
-			else if (t.tm_hour == 0)
-			{
-				lcdDrawNumber(spi, display1, 1, digits);
-				lcdDrawNumber(spi, display2, 2, digits);
-			}
 
+			int hour = t.tm_hour;
+
+			if (hour > 12)
+				hour-=12;
+			else if (hour == 0)
+				hour = 12;
+
+			lcdDrawNumber(spi, display1, hour/10, digits);
+			lcdDrawNumber(spi, display2, hour%10, digits);
 			lcdDrawNumber(spi, display6, (t.tm_hour < 12)?AM:PM, digits);
 		}
 		else
