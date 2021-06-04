@@ -1,14 +1,20 @@
 #include "Digits.h"
 
-#include "clockDigital.h"
-#include "clockFlip.h"
-#include "clockMatrix.h"
-#include "clockVFD.h"
-#include "clockInk.h"
-#include "clockWood.h"
-#include "clockNixie.h"
+#include "Clock-Faces/Clock 14SEG/clock14SEG.h"
+#include "Clock-Faces/Clock BINA/clockBINA.h"
+#include "Clock-Faces/Clock Digital/clockDigital.h"
+#include "Clock-Faces/Clock Flip/clockFlip.h"
+#include "Clock-Faces/Clock Ink/clockInk.h"
+#include "Clock-Faces/Clock Lixie Cyan/clockLixieCyan.h"
+#include "Clock-Faces/Clock Lixie Purple/clockLixiePurple.h"
+#include "Clock-Faces/Clock Matrix/clockMatrix.h"
+#include "Clock-Faces/Clock NIMO/clockNIMO.h"
+#include "Clock-Faces/Clock Nixie/clockNixie.h"
+#include "Clock-Faces/Clock VFD/clockVFD.h"
+#include "Clock-Faces/Clock Wood/clockWood.h"
 
 #define SETTHEME(THEME) \
+case Theme::THEME: \
 digits.d[0] = zero_##THEME; \
 digits.d[1] = one_##THEME; \
 digits.d[2] = two_##THEME; \
@@ -25,35 +31,29 @@ digits.d[12] = space_##THEME; \
 digits.d[13] = am_##THEME; \
 digits.d[14] = pm_##THEME; \
 digits.d[15] = heart_##THEME; \
-digits.theme = Theme::THEME;
+digits.theme = Theme::THEME; \
+break;
+
 
 void changeDigits(Digits& digits, Theme newTheme)
 {
+    if (digits.theme == newTheme)
+        return; // nothing to do
+        
     switch (newTheme)
     {
-        case Theme::Digital:
-            SETTHEME(Digital);
-            break;
-        case Theme::Flip:
-            SETTHEME(Flip);
-            break;
-        case Theme::Ink:
-            SETTHEME(Ink);
-            break;
-        case Theme::Matrix:
-            SETTHEME(Matrix);
-            break;
-        case Theme::Nixie:
-            SETTHEME(Nixie);
-            break;
-        case Theme::VFD:
-            SETTHEME(VFD);
-            break;
-        case Theme::Wood:
-            SETTHEME(Wood);
-            break;
         default:
-            SETTHEME(VFD);
-            break;
+        SETTHEME(SEG14);
+        SETTHEME(BINA);
+        SETTHEME(Digital);
+        SETTHEME(Flip);
+        SETTHEME(Ink);
+        SETTHEME(LixieCyan);
+        SETTHEME(LixiePurple);
+        SETTHEME(Matrix);
+        SETTHEME(NIMO);
+        SETTHEME(Nixie);
+        SETTHEME(VFD);
+        SETTHEME(Wood);
     };
 }
