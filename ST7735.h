@@ -1,35 +1,8 @@
-#ifndef ST7735_H_
-#define ST7735_H_
+#pragma once
+
+#include "Digits.h"
 
 #include <stdint.h>
-
-#include "clockDigital.h"
-#include "clockFlip.h"
-#include "clockMatrix.h"
-#include "clockVFD.h"
-#include "clockInk.h"
-#include "clockWood.h"
-#include "clockNixie.h"
-
-#define zero_Theme      zero_VFD
-#define one_Theme       one_VFD
-#define two_Theme       two_VFD
-#define three_Theme     three_VFD    
-#define four_Theme      four_VFD
-#define five_Theme      five_VFD
-#define six_Theme       six_VFD
-#define seven_Theme     seven_VFD
-#define eight_Theme     eight_VFD
-#define nine_Theme      nine_VFD
-#define colon_Theme     colon_VFD
-#define slash_Theme     slash_VFD
-#define space_Theme     space_VFD
-#define am_Theme        am_VFD
-#define pm_Theme        pm_VFD
-#define heart_Theme     heart_VFD
-
-#define amAlarm_Theme   amAlarm_Ink
-#define pmAlarm_Theme   pmAlarm_Ink
 
 #define PIN_BLK     15
 #define PIN_RST     25
@@ -165,6 +138,5 @@ static char st7735_initSeq[] = {  // Format: cmd length (including cmd byte), po
 
 void lcdInit(unsigned int spi, char *init_seq);
 void lcdStartPx(unsigned int spi);
-void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number);
+void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digits& digits);
 
-#endif /* ST7735_H_ */

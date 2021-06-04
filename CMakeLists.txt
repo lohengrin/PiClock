@@ -7,6 +7,8 @@ add_executable(PiClock
 main.cpp 
 ST7735.cpp
 ST7735.h
+Digits.cpp
+Digits.h
 ${CLOCKIMG}
 )
 

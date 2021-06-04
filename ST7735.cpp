@@ -112,57 +112,57 @@ void selectDisplay(uint8_t display){
     }
 }
 
-void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number){
-
+void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digits& digits)
+{
     selectDisplay(Display);
     switch(Number){
         case 0:
-            spiWrite(spi, zero_Theme, 160*80*2);
+            spiWrite(spi, digits.zero_Theme, 160*80*2);
         break;
         case 1:
-            spiWrite(spi, one_Theme, 160*80*2);
+            spiWrite(spi, digits.one_Theme, 160*80*2);
         break;
         case 2:
-            spiWrite(spi, two_Theme, 160*80*2);
+            spiWrite(spi, digits.two_Theme, 160*80*2);
         break;
         case 3:
-            spiWrite(spi, three_Theme, 160*80*2);
+            spiWrite(spi, digits.three_Theme, 160*80*2);
         break;
         case 4:
-            spiWrite(spi, four_Theme, 160*80*2);
+            spiWrite(spi, digits.four_Theme, 160*80*2);
         break;
         case 5:
-            spiWrite(spi, five_Theme, 160*80*2);
+            spiWrite(spi, digits.five_Theme, 160*80*2);
         break;
         case 6:
-            spiWrite(spi, six_Theme, 160*80*2);
+            spiWrite(spi, digits.six_Theme, 160*80*2);
         break;
         case 7:
-            spiWrite(spi, seven_Theme, 160*80*2);
+            spiWrite(spi, digits.seven_Theme, 160*80*2);
         break;
         case 8:
-            spiWrite(spi, eight_Theme, 160*80*2);
+            spiWrite(spi, digits.eight_Theme, 160*80*2);
         break;
         case 9:
-            spiWrite(spi, nine_Theme, 160*80*2);
+            spiWrite(spi, digits.nine_Theme, 160*80*2);
         break;
         case 10:
-            spiWrite(spi, colon_Theme, 160*80*2);
+            spiWrite(spi, digits.colon_Theme, 160*80*2);
         break;
         case 11:
-            spiWrite(spi, slash_Theme, 160*80*2);
+            spiWrite(spi, digits.slash_Theme, 160*80*2);
         break;
         case 12:
-            spiWrite(spi, space_Theme, 160*80*2);
+            spiWrite(spi, digits.space_Theme, 160*80*2);
         break;
         case 13:
-            spiWrite(spi, am_Theme, 160*80*2);
+            spiWrite(spi, digits.am_Theme, 160*80*2);
         break;
         case 14:
-            spiWrite(spi, pm_Theme, 160*80*2);
+            spiWrite(spi, digits.pm_Theme, 160*80*2);
         break;
         case 15:
-            spiWrite(spi, heart_Theme, 160*80*2);
+            spiWrite(spi, digits.heart_Theme, 160*80*2);
         break;
     }
 }

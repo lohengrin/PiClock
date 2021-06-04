@@ -1,4 +1,5 @@
 #include "ST7735.h"
+#include "Digits.h"
 
 #include <pigpio.h>
 #include <iostream>
@@ -92,7 +93,6 @@ void gpio_callback(uint gpio, uint32_t events) {
 
 int main()
 {
-
 	int res = gpioInitialise();
 	if (res < 0)
 	{
@@ -130,6 +130,9 @@ int main()
 
 	lcdStartPx(spi);
 
+	Digits digits;
+	changeDigits(digits, Theme::Matrix);
+
 	while (1)
 	{
 
@@ -144,98 +147,98 @@ int main()
 		{
 			if (t.tm_hour >= 1 & t.tm_hour <= 9)
 			{
-				lcdDrawNumber(spi, display1, 0);
-				lcdDrawNumber(spi, display2, t.tm_hour);
+				lcdDrawNumber(spi, display1, 0, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour, digits);
 			}
 			else if (t.tm_hour >= 10 & t.tm_hour <= 12)
 			{
-				lcdDrawNumber(spi, display1, 1);
-				lcdDrawNumber(spi, display2, t.tm_hour - 10);
+				lcdDrawNumber(spi, display1, 1, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour - 10, digits);
 			}
 			else if (t.tm_hour >= 13 & t.tm_hour <= 21)
 			{
-				lcdDrawNumber(spi, display1, 0);
-				lcdDrawNumber(spi, display2, t.tm_hour - 12);
+				lcdDrawNumber(spi, display1, 0, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour - 12, digits);
 			}
 			else if (t.tm_hour >= 22)
 			{
-				lcdDrawNumber(spi, display1, 1);
-				lcdDrawNumber(spi, display2, t.tm_hour - 22);
+				lcdDrawNumber(spi, display1, 1, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour - 22, digits);
 			}
 			else if (t.tm_hour == 0)
 			{
-				lcdDrawNumber(spi, display1, 1);
-				lcdDrawNumber(spi, display2, 2);
+				lcdDrawNumber(spi, display1, 1, digits);
+				lcdDrawNumber(spi, display2, 2, digits);
 			}
 		}
 		else
 		{
 			if (t.tm_hour >= 1 & t.tm_hour <= 9)
 			{
-				lcdDrawNumber(spi, display1, 0);
-				lcdDrawNumber(spi, display2, t.tm_hour);
+				lcdDrawNumber(spi, display1, 0, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour, digits);
 			}
 			else if (t.tm_hour >= 10 & t.tm_hour < 20)
 			{
-				lcdDrawNumber(spi, display1, 1);
-				lcdDrawNumber(spi, display2, t.tm_hour - 10);
+				lcdDrawNumber(spi, display1, 1, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour - 10, digits);
 			}
 			else
 			{
-				lcdDrawNumber(spi, display1, 2);
-				lcdDrawNumber(spi, display2, t.tm_hour - 20);
+				lcdDrawNumber(spi, display1, 2, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour - 20, digits);
 			}
 
 		}
 
 		if (t.tm_min >= 0 & t.tm_min <= 9)
 		{
-			lcdDrawNumber(spi, display4, 0);
-			lcdDrawNumber(spi, display5, t.tm_min);
+			lcdDrawNumber(spi, display4, 0, digits);
+			lcdDrawNumber(spi, display5, t.tm_min, digits);
 		}
 		else if (t.tm_min >= 10 & t.tm_min <= 19)
 		{
-			lcdDrawNumber(spi, display4, 1);
-			lcdDrawNumber(spi, display5, t.tm_min - 10);
+			lcdDrawNumber(spi, display4, 1, digits);
+			lcdDrawNumber(spi, display5, t.tm_min - 10, digits);
 		}
 		else if (t.tm_min >= 20 & t.tm_min <= 29)
 		{
-			lcdDrawNumber(spi, display4, 2);
-			lcdDrawNumber(spi, display5, t.tm_min - 20);
+			lcdDrawNumber(spi, display4, 2, digits);
+			lcdDrawNumber(spi, display5, t.tm_min - 20, digits);
 		}
 		else if (t.tm_min >= 30 & t.tm_min <= 39)
 		{
-			lcdDrawNumber(spi, display4, 3);
-			lcdDrawNumber(spi, display5, t.tm_min - 30);
+			lcdDrawNumber(spi, display4, 3, digits);
+			lcdDrawNumber(spi, display5, t.tm_min - 30, digits);
 		}
 		else if (t.tm_min >= 40 & t.tm_min <= 49)
 		{
-			lcdDrawNumber(spi, display4, 4);
-			lcdDrawNumber(spi, display5, t.tm_min - 40);
+			lcdDrawNumber(spi, display4, 4, digits);
+			lcdDrawNumber(spi, display5, t.tm_min - 40, digits);
 		}
 		else if (t.tm_min >= 50 & t.tm_min <= 59)
 		{
-			lcdDrawNumber(spi, display4, 5);
-			lcdDrawNumber(spi, display5, t.tm_min - 50);
+			lcdDrawNumber(spi, display4, 5, digits);
+			lcdDrawNumber(spi, display5, t.tm_min - 50, digits);
 		}
 
 		if (!mode24h)
 		{
 			if (t.tm_hour < 12)
-				lcdDrawNumber(spi, display6, AM);
+				lcdDrawNumber(spi, display6, AM, digits);
 			else
-				lcdDrawNumber(spi, display6, PM);
+				lcdDrawNumber(spi, display6, PM, digits);
 		}
 		else
 		{
-			lcdDrawNumber(spi, display6, SPACE);
+			lcdDrawNumber(spi, display6, SPACE, digits);
 		}
 
 		if (ConfigureTime_MODE == OFF)
 		{
-			lcdDrawNumber(spi, display3, COLON);
+			lcdDrawNumber(spi, display3, COLON, digits);
 			usleep(500000);
-			lcdDrawNumber(spi, display3, SPACE);
+			lcdDrawNumber(spi, display3, SPACE, digits);
 			usleep(500000);
 		}
 		else
@@ -243,17 +246,17 @@ int main()
 			if (Selection == HRS)
 			{
 				usleep(200000);
-				lcdDrawNumber(spi, display1, SPACE);
-				lcdDrawNumber(spi, display2, SPACE);
-				lcdDrawNumber(spi, display3, COLON);
+				lcdDrawNumber(spi, display1, SPACE, digits);
+				lcdDrawNumber(spi, display2, SPACE, digits);
+				lcdDrawNumber(spi, display3, COLON, digits);
 				usleep(200000);
 			}
 			else if (Selection == MINS)
 			{
 				usleep(200000);
-				lcdDrawNumber(spi, display3, COLON);
-				lcdDrawNumber(spi, display4, SPACE);
-				lcdDrawNumber(spi, display5, SPACE);
+				lcdDrawNumber(spi, display3, COLON, digits);
+				lcdDrawNumber(spi, display4, SPACE, digits);
+				lcdDrawNumber(spi, display5, SPACE, digits);
 				usleep(200000);
 			}
 		}
