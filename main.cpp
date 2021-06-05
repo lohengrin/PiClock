@@ -16,7 +16,7 @@
 
 bool Backlight = false;
 bool mode24h = true;
-Theme currentTheme = Theme::VFD;
+Theme currentTheme = Theme::SEG14;
 
 // call aFunction whenever GPIO changes state
 void gpio_callback(int gpio, int level, uint32_t tick)
@@ -25,7 +25,7 @@ void gpio_callback(int gpio, int level, uint32_t tick)
 	{
 		currentTheme = (Theme)((int)currentTheme + 1);
 		if (currentTheme == Theme::Theme_Number)
-			currentTheme = Theme::Digital;
+			currentTheme = (Theme) 0;
 	}
 }
 

@@ -2,7 +2,7 @@
 
 // All Clock Face themes
 enum class Theme {
-    SEG14,
+    SEG14 = 0,
     BINA,
     Digital,
     Flip,
@@ -11,7 +11,7 @@ enum class Theme {
     LixiePurple,
     Matrix,
     NIMO,
-    Nixie,
+    Nixie ,
     VFD,
     Wood,
     Theme_Number
