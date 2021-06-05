@@ -9,7 +9,7 @@ Modified for Raspberry Pi and optimized.
 
 ## Main modifications
 - Removed Clock configuration: No need for clock configuration, use system time synchonized by NTP
-- Dynamic theming (instead of compilation time): Button A cycle trought all theme
+- Dynamic theming (instead of compilation time): Button A cycle trought all themes
 - Add 24h mode
 - Large code simplifying
 
