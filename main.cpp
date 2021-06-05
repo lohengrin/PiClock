@@ -6,14 +6,12 @@
 #include <chrono>
 #include <unistd.h>
 
-#define HRS 0
-#define MINS 1
-
 #define PIN_BTNA 24
-#define PIN_BTNB 7
-#define PIN_BTNC 8
-#define PIN_BTND 9
+#define PIN_BTNB -1 // Not used
+#define PIN_BTNC -1 // Not used
+#define PIN_BTND -1 // Not used
 
+// Somme globals states
 bool Backlight = false;
 bool mode24h = true;
 Theme currentTheme = Theme::SEG14;
@@ -21,7 +19,7 @@ Theme currentTheme = Theme::SEG14;
 // call aFunction whenever GPIO changes state
 void gpio_callback(int gpio, int level, uint32_t tick)
 {
-	if (gpio == PIN_BTNA && level == 0)
+	if (gpio == PIN_BTNA && level == 0) // Button A cycling all themes
 	{
 		currentTheme = (Theme)((int)currentTheme + 1);
 		if (currentTheme == Theme::Theme_Number)
@@ -29,9 +27,10 @@ void gpio_callback(int gpio, int level, uint32_t tick)
 	}
 }
 
-// ============ Main
+// ============ Main ======================
 int main()
 {
+	// Init pigpio lib
 	int res = gpioInitialise();
 	if (res < 0)
 	{
@@ -39,7 +38,7 @@ int main()
 		exit(1);
 	}
 
-	// Init SPI port
+	// Init SPI port 0
 	int spi = spiOpen(0, 10000000, 0);
 
 	// Configure GPIO directions
@@ -49,7 +48,7 @@ int main()
 	gpioSetMode(PIN_CS4, PI_OUTPUT);
 	gpioSetMode(PIN_CS5, PI_OUTPUT);
 	gpioSetMode(PIN_CS6, PI_OUTPUT);
-	gpioSetMode(PIN_DC, PI_OUTPUT);
+	gpioSetMode(PIN_DC,  PI_OUTPUT);
 	gpioSetMode(PIN_RST, PI_OUTPUT);
 	gpioSetMode(PIN_BLK, PI_OUTPUT);
 
@@ -66,13 +65,16 @@ int main()
 	gpioWrite(PIN_CS6, 0);
 	gpioWrite(PIN_RST, 1);
 
+	// Init screens
 	lcdInit(spi, st7735_initSeq);
 
+	// Switch on backlight
 	gpioWrite(PIN_BLK, 1);
 	Backlight = true;
 
 	lcdStartPx(spi);
 
+	// Current digits (pointers to images)
 	Digits digits;
 
 	while (1)
@@ -118,7 +120,6 @@ int main()
 
 		// Wait a little bit to reduce cpu load
 		usleep(50000);
-		//std::cout << gpioRead(PIN_BTNA) << std::endl;
 	}
 
 	gpioTerminate();

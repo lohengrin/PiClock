@@ -1,5 +1,6 @@
 #include "Digits.h"
 
+// Includes for header embedded images
 #include "Clock-Faces/Clock 14SEG/clock14SEG.h"
 #include "Clock-Faces/Clock BINA/clockBINA.h"
 #include "Clock-Faces/Clock Digital/clockDigital.h"
@@ -13,6 +14,7 @@
 #include "Clock-Faces/Clock VFD/clockVFD.h"
 #include "Clock-Faces/Clock Wood/clockWood.h"
 
+// MACRO used to define switch case for each Clock face
 #define SETTHEME(THEME) \
 case Theme::THEME: \
 digits.d[0] = zero_##THEME; \
@@ -34,12 +36,13 @@ digits.d[15] = heart_##THEME; \
 digits.theme = Theme::THEME; \
 break;
 
-
+//----------------------------------------------------------
 void changeDigits(Digits& digits, Theme newTheme)
 {
+    // Check current theme
     if (digits.theme == newTheme)
         return; // nothing to do
-        
+     
     switch (newTheme)
     {
         default:
@@ -57,3 +60,4 @@ void changeDigits(Digits& digits, Theme newTheme)
         SETTHEME(Wood);
     };
 }
+

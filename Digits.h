@@ -20,7 +20,7 @@ enum class Theme {
 // Current theme image pointers
 struct Digits {
     Theme theme = Theme::Theme_Number;
-    char* d[16];
+    char* d[16]; // Point to corresponding char arrays
 };
 
 // Update digits structure with image array pointers according to the theme

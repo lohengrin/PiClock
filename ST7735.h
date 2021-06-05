@@ -7,9 +7,6 @@
 #define PIN_BLK     15
 #define PIN_RST     25
 #define PIN_DC      23
-//#define PIN_SDI     18
-//#define PIN_SCK     17
-//#define PIN_CS      16
 #define PIN_CS1      14
 #define PIN_CS2      18
 #define PIN_CS3      22
@@ -23,7 +20,6 @@
 #define SERIAL_CLK_DIV 1.f
 
 // Color definitions
-
 #define BLACK 	        0x0000
 #define BLUE 	        0x001F
 #define RED 	        0xF800
@@ -37,7 +33,6 @@
 #define DARK 	        0x18C3
 
 // Display Definitions
-
 #define display1        1
 #define display2        2
 #define display3        3

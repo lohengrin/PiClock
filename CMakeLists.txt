@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(PiClock)
-file(GLOB CLOCKIMG "clock*.h")
+file(GLOB CLOCKIMG "Clock-Faces/*/clock*.h")
 
 add_executable(PiClock 
 main.cpp 

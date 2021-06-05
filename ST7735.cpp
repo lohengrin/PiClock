@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-// Structure to memorize last displayed digit/theme
+// Structure to memorize last displayed digit/theme for a display
 struct LastUpdate {
     int number = -1;
     Theme theme = Theme::Theme_Number;
@@ -13,25 +13,24 @@ struct LastUpdate {
 // List of last displayed digit/theme
 std::vector<LastUpdate> lastUpdate(6);
 
-
+//---------------------------------------------------------------------------------
+// Set the Data/Cmd output
 void lcdSetDC(unsigned int dc) {
     usleep(1);
     gpioWrite(PIN_DC, dc);
-//    gpioWrite_masked((1u << PIN_DC) , !!dc << PIN_DC  );
     usleep(1);
 }
 
+//---------------------------------------------------------------------------------
 void lcdWriteCMD(unsigned int spi, char *cmd, size_t count) 
 {
     lcdSetDC(0);
-    //spiWrite(spi, *cmd++);
     int res = spiWrite(spi, cmd++, 1);
-    if (count >= 2) {
+    if (count >= 2) 
+    {
         lcdSetDC(1);
         for (size_t i = 0; i < count - 1; ++i)
-        {
             res = spiWrite(spi,cmd++,1);
-        }
     }
     lcdSetDC(1);
 }
@@ -48,12 +47,14 @@ void lcdInit(unsigned int spi, char *init_seq)
     }
 }
 
+//---------------------------------------------------------------------------------
 void lcdStartPx(unsigned int spi) {
     char cmd = ST7735_RAMWR;
     lcdWriteCMD(spi, &cmd, 1);
     lcdSetDC(1);
 }
 
+//---------------------------------------------------------------------------------
 void selectDisplay(uint8_t display){
     switch(display){
         case 0:
@@ -123,16 +124,23 @@ void selectDisplay(uint8_t display){
     }
 }
 
+//---------------------------------------------------------------------------------
 void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digits& digits)
 {
+    // Check last update
+    // If no change of number or theme, avoid updating
     LastUpdate& lu = lastUpdate[Display-1];
 
     if (lu.number == Number && lu.theme == digits.theme)
         return; // Nothing to do
 
+    // Select the corressponding display
     selectDisplay(Display);
+    // Send Data
     spiWrite(spi, digits.d[Number], 160*80*2);
 
+    // Store last displayed digit for this screen
     lu.number = Number;
     lu.theme = digits.theme;
 }
+
