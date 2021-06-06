@@ -85,3 +85,11 @@ void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digi
     lu.theme = digits.theme;
 }
 
+//---------------------------------------------------------------------------------
+void lcdDrawImage(unsigned int spi, uint8_t Display, char * data, int size)
+{
+    // Select the corressponding display
+    selectDisplay(Display);
+    // Send Data
+    spiWrite(spi, data, size);
+}

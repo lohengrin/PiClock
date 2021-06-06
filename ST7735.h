@@ -133,7 +133,10 @@ static char st7735_initSeq[] = {  // Format: cmd length (including cmd byte), po
 
 void lcdInit(unsigned int spi, char *init_seq);
 void lcdStartPx(unsigned int spi);
+// Draw number on given display using "digits theme"
 void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digits& digits);
+// Draw custom image on given display
+void lcdDrawImage(unsigned int spi, uint8_t Display, char * data, int size);
 
 // Select the display (starting at 1) or 0 for all
 void selectDisplay(uint8_t display);
