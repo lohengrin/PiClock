@@ -135,3 +135,5 @@ void lcdInit(unsigned int spi, char *init_seq);
 void lcdStartPx(unsigned int spi);
 void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digits& digits);
 
+// Select the display (starting at 1) or 0 for all
+void selectDisplay(uint8_t display);

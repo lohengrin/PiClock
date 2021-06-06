@@ -55,73 +55,14 @@ void lcdStartPx(unsigned int spi) {
 }
 
 //---------------------------------------------------------------------------------
-void selectDisplay(uint8_t display){
-    switch(display){
-        case 0:
-            gpioWrite(PIN_CS1, 0);
-            gpioWrite(PIN_CS2, 0);
-            gpioWrite(PIN_CS3, 0);
-            gpioWrite(PIN_CS4, 0);
-            gpioWrite(PIN_CS5, 0);
-            gpioWrite(PIN_CS6, 0);
-        break;
-        case 1:
-            gpioWrite(PIN_CS1, 0);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 1);
-        break;
-        case 2:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 0);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 1);
-        break;
-        case 3:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 0);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 1);
-        break;
-        case 4:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 0);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 1);
-        break;
-        case 5:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 0);
-            gpioWrite(PIN_CS6, 1);
-        break;
-        case 6:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 0);
-        break;
-        default:
-            gpioWrite(PIN_CS1, 1);
-            gpioWrite(PIN_CS2, 1);
-            gpioWrite(PIN_CS3, 1);
-            gpioWrite(PIN_CS4, 1);
-            gpioWrite(PIN_CS5, 1);
-            gpioWrite(PIN_CS6, 1);
-        break;
-    }
+void selectDisplay(uint8_t display)
+{
+    gpioWrite(PIN_CS1, (display == 0 || display == 1)?0:1);
+    gpioWrite(PIN_CS2, (display == 0 || display == 2)?0:1);
+    gpioWrite(PIN_CS3, (display == 0 || display == 3)?0:1);
+    gpioWrite(PIN_CS4, (display == 0 || display == 4)?0:1);
+    gpioWrite(PIN_CS5, (display == 0 || display == 5)?0:1);
+    gpioWrite(PIN_CS6, (display == 0 || display == 6)?0:1);
 }
 
 //---------------------------------------------------------------------------------

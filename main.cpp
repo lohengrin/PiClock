@@ -57,12 +57,7 @@ int main()
 	gpioSetAlertFunc(PIN_BTNA, gpio_callback);
 
 	// Select all screens (to configure all at same time)
-	gpioWrite(PIN_CS1, 0);
-	gpioWrite(PIN_CS2, 0);
-	gpioWrite(PIN_CS3, 0);
-	gpioWrite(PIN_CS4, 0);
-	gpioWrite(PIN_CS5, 0);
-	gpioWrite(PIN_CS6, 0);
+	selectDisplay(0);
 	gpioWrite(PIN_RST, 1);
 
 	// Init screens
