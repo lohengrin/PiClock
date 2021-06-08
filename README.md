@@ -12,9 +12,38 @@ Modified for Raspberry Pi and optimized.
 - Dynamic theming (instead of compilation time): Button A cycle trought all themes
 - Add 24h mode
 - Large code simplifying
+- (Optional) Weather informations from OpenWeatherMap
 
-## System test bench
-![Test setup](TestSetup.jpg)
+## Compilation
+### Without Weather
+When compiled without Weather, no QT dependency
+```
+mkdir build
+cd build
+cmake ..
+make -j4
+```
+### With Weather (QT dev packages needed)
+When compiled with Weather youe need some QT dev package (qtbase5-dev)
+- appID: Your own OpenWeatherMap appId
+- location: OpenWeatherMap City location (ex: "Paris,FR")
+```
+mkdir build
+cd build
+cmake -DWITH_QWEATHER=ON -DOWAPPID="appID" -DOWLOCATION="location"
+make -j4
+```
+## Running
+sudo is need to access GPIO:
+```
+sudo ./PiClock
+```
+
+# System test bench
+## Pictures
+| Without Weather  |  With Weather  |
+|------------------|----------------|
+|![Test setup](TestSetup.jpg)|![Weather](Weather.jpg)|
 
 ## Pinout used
 |Display     |    PI    |   PIN   |
