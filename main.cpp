@@ -47,10 +47,11 @@ void displayWeather(int spi)
 
 	QPixmap wicon;
     float mintemp = 0, maxtemp = 0;
-    grabber.grab(OWLOCATION, wicon, mintemp, maxtemp);
+	struct tm forecastdatetime;
+    grabber.grabForecastWeather(OWLOCATION, wicon, mintemp, maxtemp, forecastdatetime);
     std::cout << "Min/Max: " << mintemp << "/" << maxtemp << std::endl;
 
-	QImage res = generator.createWeatherPixmap(wicon, mintemp, maxtemp).toImage();
+	QImage res = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
 
 	// Convert to RGB 565 (Byte swaped)
 	uint16_t * data = new uint16_t[res.height()*res.width()];
@@ -166,8 +167,10 @@ int main(int argc, char ** argv)
 			lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
 #ifdef WITH_QWEATHER
 			if (tim - lastUpdatedWeather > 3600) // Update each hour
+			{
 				displayWeather(spi);
-			lastUpdatedWeather = tim;
+				lastUpdatedWeather = tim;
+			}
 #else
 			lcdDrawNumber(spi, display6, SPACE, digits);
 #endif
