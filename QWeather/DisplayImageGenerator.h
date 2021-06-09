@@ -16,4 +16,6 @@ protected:
 	QPainter myPainter;
 	unsigned int myWidth;
 	unsigned int myHeight;
+	QFont myFontTemp;
+	QFont myFontDate;
 };
