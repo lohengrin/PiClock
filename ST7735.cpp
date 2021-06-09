@@ -88,6 +88,10 @@ void lcdDrawNumber(unsigned int spi, uint8_t Display, uint8_t Number, const Digi
 //---------------------------------------------------------------------------------
 void lcdDrawImage(unsigned int spi, uint8_t Display, char * data, int size)
 {
+    // Reset last displayed number
+    LastUpdate& lu = lastUpdate[Display-1];
+    lu.number = -1;
+
     // Select the corressponding display
     selectDisplay(Display);
     // Send Data

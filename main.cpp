@@ -17,14 +17,15 @@
 	time_t lastUpdatedWeather = 0;
 #endif
 
-#define PIN_BTNA 24
-#define PIN_BTNB -1 // Not used
+#define PIN_BTNA 24 // Change Theme
+#define PIN_BTNB 5 // Switch weather mode / time mode
 #define PIN_BTNC -1 // Not used
 #define PIN_BTND -1 // Not used
 
 // Somme globals states
 bool Backlight = false;
 bool mode24h = true;
+bool weatherForecast = false;
 Theme currentTheme = Theme::SEG14;
 
 // call aFunction whenever GPIO changes state
@@ -36,33 +37,32 @@ void gpio_callback(int gpio, int level, uint32_t tick)
 		if (currentTheme == Theme::Theme_Number)
 			currentTheme = (Theme) 0;
 	}
+	else if (gpio == PIN_BTNB && level == 0) // Button B switch weather/time mode
+	{
+		weatherForecast = !weatherForecast;
+		lastUpdatedWeather = 0;
+	}
 }
+
+
 
 // Optionnal weather display on display 6
 #ifdef WITH_QWEATHER
-void displayWeather(int spi)
+
+//! Convert a Qimage to an array of uint16_t in RGB 565 (ready to use with display)
+//! Caller need to free the allocated array with delete[]
+uint16_t * convertToRGB565(const QImage& image)
 {
-    static OpenWeatherGrabber grabber;
-    static DisplayImageGenerator generator(80,160);
-
-	QPixmap wicon;
-    float mintemp = 0, maxtemp = 0;
-	struct tm forecastdatetime;
-    grabber.grabForecastWeather(OWLOCATION, wicon, mintemp, maxtemp, forecastdatetime);
-    std::cout << "Min/Max: " << mintemp << "/" << maxtemp << std::endl;
-
-	QImage res = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
-
 	// Convert to RGB 565 (Byte swaped)
-	uint16_t * data = new uint16_t[res.height()*res.width()];
+	uint16_t * data = new uint16_t[image.height()*image.width()];
 
-	for ( int row = 0; row < res.height(); ++row )
+	for ( int row = 0; row < image.height(); ++row )
 	{
-		for ( int col = 0; col < res.width(); ++col )
+		for ( int col = 0; col < image.width(); ++col )
 		{
-			QColor clr( res.pixel( col , row ) );
+			QColor clr( image.pixel( col , row ) );
 
-			uint16_t * pixel =  &data[row*res.width()+col];
+			uint16_t * pixel =  &data[row*image.width()+col];
 
 			uint16_t r = ((uint16_t)clr.red()) >> 3; // Keep 5 most significant bits
 			uint16_t g = ((uint16_t)clr.green()) >> 2; // Keep 6 most significant bits
@@ -78,7 +78,25 @@ void displayWeather(int spi)
 		}
 	}
 
-	lcdDrawImage(spi, display6, (char*) data, res.height()*res.width()*2);
+	return data;
+}
+
+void displayWeather(int spi, int display, int dayoffset, const struct tm& currentime)
+{
+    static OpenWeatherGrabber grabber;
+    static DisplayImageGenerator generator(80,160);
+
+	QPixmap wicon;
+    float mintemp = 0, maxtemp = 0;
+	struct tm forecastdatetime;
+    grabber.grabForecastWeather(OWLOCATION, dayoffset, wicon, mintemp, maxtemp, forecastdatetime);
+    //std::cout << "Min/Max: " << mintemp << "/" << maxtemp << std::endl;
+
+	QImage res = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
+
+	uint16_t * data = convertToRGB565(res);
+
+	lcdDrawImage(spi, display, (char*) data, res.height()*res.width()*2);
 
 	delete[] data;
 }
@@ -117,6 +135,8 @@ int main(int argc, char ** argv)
 	// Buttons
 	gpioSetMode(PIN_BTNA, PI_INPUT);
 	gpioSetAlertFunc(PIN_BTNA, gpio_callback);
+	gpioSetMode(PIN_BTNB, PI_INPUT);
+	gpioSetAlertFunc(PIN_BTNB, gpio_callback);
 
 	// Select all screens (to configure all at same time)
 	selectDisplay(0);
@@ -143,46 +163,64 @@ int main(int argc, char ** argv)
 		time_t tim = time(nullptr);
 		struct tm t = *localtime(&tim);
 
-		// Display digits on LCD
-		// Hours + AM/PM for 12h mode
-		if (!mode24h)
+		if (!weatherForecast)
 		{
-			// 12h mode
+			// Display digits on LCD
+			// Hours + AM/PM for 12h mode
+			if (!mode24h)
+			{
+				// 12h mode
 
-			int hour = t.tm_hour;
+				int hour = t.tm_hour;
 
-			if (hour > 12)
-				hour-=12;
-			else if (hour == 0)
-				hour = 12;
+				if (hour > 12)
+					hour-=12;
+				else if (hour == 0)
+					hour = 12;
 
-			lcdDrawNumber(spi, display1, hour/10, digits);
-			lcdDrawNumber(spi, display2, hour%10, digits);
-			lcdDrawNumber(spi, display6, (t.tm_hour < 12)?AM:PM, digits);
+				lcdDrawNumber(spi, display1, hour/10, digits);
+				lcdDrawNumber(spi, display2, hour%10, digits);
+				lcdDrawNumber(spi, display6, (t.tm_hour < 12)?AM:PM, digits);
+			}
+			else
+			{
+				// 24h mode
+				lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
+				lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
+	#ifdef WITH_QWEATHER
+				if (tim - lastUpdatedWeather > 3600) // Update each hour
+				{
+					int dayoffset = (t.tm_hour >= 18)?1:0;
+					displayWeather(spi, display6, dayoffset, t);
+					lastUpdatedWeather = tim;
+				}
+	#else
+				lcdDrawNumber(spi, display6, SPACE, digits);
+	#endif
+			}
+
+			// Minutes
+			lcdDrawNumber(spi, display4, t.tm_min/10, digits);
+			lcdDrawNumber(spi, display5, t.tm_min%10, digits);
+
+			// Blinking colon on each second
+			lcdDrawNumber(spi, display3, ((t.tm_sec % 2) == 0)? COLON:SPACE, digits);
 		}
 		else
 		{
-			// 24h mode
-			lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
-			lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
-#ifdef WITH_QWEATHER
+			// Display weather forecast one day per display
 			if (tim - lastUpdatedWeather > 3600) // Update each hour
 			{
-				displayWeather(spi);
+				displayWeather(spi, display1, 0, t);
+				displayWeather(spi, display2, 1, t);
+				displayWeather(spi, display3, 2, t);
+				displayWeather(spi, display4, 3, t);
+				displayWeather(spi, display5, 4, t);
+				displayWeather(spi, display6, 5, t);
 				lastUpdatedWeather = tim;
 			}
-#else
-			lcdDrawNumber(spi, display6, SPACE, digits);
-#endif
+
 		}
-
-		// Minutes
-		lcdDrawNumber(spi, display4, t.tm_min/10, digits);
-		lcdDrawNumber(spi, display5, t.tm_min%10, digits);
-
-		// Blinking colon on each second
-		lcdDrawNumber(spi, display3, ((t.tm_sec % 2) == 0)? COLON:SPACE, digits);
-
 		// Wait a little bit to reduce cpu load
 		usleep(50000);
 	}

@@ -8,11 +8,13 @@ Code is based on the Raspberry Pi Pico version of Savage Electronics.
 Modified for Raspberry Pi and optimized.
 
 ## Main modifications
-- Removed Clock configuration: No need for clock configuration, use system time synchonized by NTP
-- Dynamic theming (instead of compilation time): Button A cycle trought all themes
-- Add 24h mode
-- Large code simplifying
-- (Optional) Weather informations from OpenWeatherMap
+* Removed Clock configuration: No need for clock configuration, use system time synchonized by NTP
+* Dynamic theming (instead of compilation time): Button A cycle trought all themes
+* Add 24h mode
+* Large code simplifying
+* (Optional) Weather informations from OpenWeatherMap
+    - Display time in 24h mode and weather forecast on display 6
+    - Button B switch display Time or one display per weather forecast day
 
 ## Compilation
 ### Without Weather
@@ -44,7 +46,7 @@ sudo ./PiClock
 | Without Weather  |  With Weather  |
 |------------------|----------------|
 |![Test setup](TestSetup.jpg)|![Weather](Weather.jpg)|
-
+|                  |![Forecast](Forecast.jpg)|
 ## Pinout used
 |Display     |    PI    |   PIN   |
 |------------|----------|---------|
@@ -55,7 +57,7 @@ sudo ./PiClock
 |D/C	     |   GP23   |    16   |
 |SDI         |  SPIMOSI |    19   |
 |SCK         |   SCLK   |    23   |
-|BTB         |          |         |
+|BTB         |    GP5   |    29   |
 |BTD         |          |         |
 |CS1	     |   GP14   |    8    |
 |CS2	     |   GP18   |    12   |
