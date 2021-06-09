@@ -6,10 +6,12 @@ DisplayImageGenerator::DisplayImageGenerator(unsigned int width, unsigned int he
     myWidth(width),
     myHeight(height)
 {
-
+    // Prepare used fonts
+    // For temperature display
     myFontTemp.setPixelSize(20);
     myFontTemp.setBold(true);
 
+    // For date display
     myFontDate.setPixelSize(16);
 }
 
@@ -20,10 +22,13 @@ DisplayImageGenerator::~DisplayImageGenerator()
 
 const QPixmap& DisplayImageGenerator::createWeatherPixmap(const QPixmap& icon, float mintemp, float maxtemp, const struct tm& date )
 {
+    // Scale icon to match image width keeping aspect ratio.
     QPixmap scaled = icon.scaledToWidth(myWidth, Qt::SmoothTransformation);
 
-    // Weather icon
+    // Clear (black background)
     myPainter.fillRect(QRect(0,0,myWidth, myHeight), QColor("black") );
+
+    // Weather icon
     myPainter.drawPixmap(QPoint(0,0), scaled);
 
     // Date of forecast

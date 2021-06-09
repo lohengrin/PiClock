@@ -47,10 +47,12 @@ bool OpenWeatherGrabber::grabCurrentWeather(const QString &location, QPixmap &ic
 //---------------------------------------------------------------------------------------------------------
 bool OpenWeatherGrabber::grabForecastWeather(const QString &location, QPixmap &icon, float &mintemp, float &maxtemp, struct tm& date)
 {
+    // Location not initialized, use current time request to convert location to lat/lon
     auto it = myLocationMap.find(location);
     if (it == myLocationMap.end())
         grabCurrentWeather(location, icon, mintemp, maxtemp);
 
+    // Using OneCall API
     QString address = 
         QString("https://api.openweathermap.org/data/2.5/onecall?lat=%1&lon=%2&exclude={part}&appid=%3&units=metric")
         .arg(myLocationMap[location].latitude).arg(myLocationMap[location].longitude).arg(OWAPPID);
@@ -77,14 +79,15 @@ bool OpenWeatherGrabber::grabForecastWeather(const QString &location, QPixmap &i
 		time_t tim = time(nullptr);
 		struct tm t = *localtime(&tim);
 
+        // Search in results daily weather for current or next day accrodinh to current time
         while (cont)
         {
             time_t dt = json["daily"][i++]["dt"].toInt();
 		    struct tm dtt = *localtime(&dt);
 
             if ( (dt == 0) ||
-                ((t.tm_hour > 18) && (dtt.tm_yday == t.tm_yday+1)) ||
-                ((t.tm_hour <= 18) && (dtt.tm_yday == t.tm_yday))) // After 18h display weather for tomorrow
+                ((t.tm_hour >= 18) && (dtt.tm_yday == t.tm_yday+1)) ||
+                ((t.tm_hour < 18) && (dtt.tm_yday == t.tm_yday))) // After 18h display weather for tomorrow
             {
                 cont = false;
                 date = dtt;
@@ -94,6 +97,7 @@ bool OpenWeatherGrabber::grabForecastWeather(const QString &location, QPixmap &i
 
         i--;
 
+        // Get results
         QString iconID = json["daily"][i]["weather"][0]["icon"].toString();
         //std::cout << "Icon: " << iconID.toStdString() << std::endl;
 
