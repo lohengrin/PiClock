@@ -26,7 +26,7 @@ cmake ..
 make -j4
 ```
 ### With Weather (QT dev packages needed)
-When compiled with Weather youe need some QT dev package (qtbase5-dev)
+When compiled with Weather you need some QT dev package (qtbase5-dev)
 - appID: Your own OpenWeatherMap appId
 - location: OpenWeatherMap City location (ex: "Paris,FR")
 ```
