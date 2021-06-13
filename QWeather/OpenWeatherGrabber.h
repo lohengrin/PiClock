@@ -18,8 +18,6 @@ public:
     bool grabCurrentWeather(const QString& location, QPixmap& icon, float &mintemp, float &maxtemp);
 
     //! Grab forecast weather for given location
-    //! If current time is 0-17h59 => return forecast for current day
-    //! If current time >= 18h => return forecast for next day
     //! location: in Openweather format (ex: "Paris,FR")
     //! dayoffset: offset in days from today for the daily forecast
     //! icon: filled with OpenWeather icon

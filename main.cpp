@@ -15,6 +15,9 @@
 	#include <QtGui>
 	#include <QtNetwork>
 	time_t lastUpdatedWeather = 0;
+
+	QImage weatherImages[7]; // 0 is current weather 1-6 is J+X
+	bool redrawWeather = true;
 #endif
 
 #define PIN_BTNA 24 // Change Theme
@@ -23,7 +26,6 @@
 #define PIN_BTND -1 // Not used
 
 // Somme globals states
-bool Backlight = false;
 bool mode24h = true;
 bool weatherForecast = false;
 Theme currentTheme = Theme::SEG14;
@@ -37,11 +39,16 @@ void gpio_callback(int gpio, int level, uint32_t tick)
 		if (currentTheme == Theme::Theme_Number)
 			currentTheme = (Theme) 0;
 	}
+#ifdef WITH_QWEATHER
 	else if (gpio == PIN_BTNB && level == 0) // Button B switch weather/time mode
 	{
+
 		weatherForecast = !weatherForecast;
+		// Force redraw and update
 		lastUpdatedWeather = 0;
+		redrawWeather = true;
 	}
+#endif
 }
 
 
@@ -81,22 +88,28 @@ uint16_t * convertToRGB565(const QImage& image)
 	return data;
 }
 
-void displayWeather(int spi, int display, int dayoffset, const struct tm& currentime)
+void updateWeather(const struct tm& currentime)
 {
     static OpenWeatherGrabber grabber;
     static DisplayImageGenerator generator(80,160);
 
-	QPixmap wicon;
-    float mintemp = 0, maxtemp = 0;
-	struct tm forecastdatetime;
-    grabber.grabForecastWeather(OWLOCATION, dayoffset, wicon, mintemp, maxtemp, forecastdatetime);
-    //std::cout << "Min/Max: " << mintemp << "/" << maxtemp << std::endl;
+	for (int i = 0; i < 7; i++)
+	{
+		QPixmap wicon;
+		float mintemp = 0, maxtemp = 0;
+		struct tm forecastdatetime;
+		grabber.grabForecastWeather(OWLOCATION, i, wicon, mintemp, maxtemp, forecastdatetime);
 
-	QImage res = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
+		weatherImages[i] = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
+	}
+}
 
-	uint16_t * data = convertToRGB565(res);
+void displayWeather(int spi, int display, int dayoffset, const struct tm& currentime)
+{
+	const QImage& img = weatherImages[dayoffset];
+	uint16_t * data = convertToRGB565(img);
 
-	lcdDrawImage(spi, display, (char*) data, res.height()*res.width()*2);
+	lcdDrawImage(spi, display, (char*) data, img.height()*img.width()*2);
 
 	delete[] data;
 }
@@ -147,8 +160,7 @@ int main(int argc, char ** argv)
 
 	// Switch on backlight
 	gpioWrite(PIN_BLK, 1);
-	Backlight = true;
-
+	
 	lcdStartPx(spi);
 
 	// Current digits (pointers to images)
@@ -163,8 +175,19 @@ int main(int argc, char ** argv)
 		time_t tim = time(nullptr);
 		struct tm t = *localtime(&tim);
 
+#ifdef WITH_QWEATHER
+		if (tim - lastUpdatedWeather > 3600) // Update each hour
+		{
+			updateWeather(t);
+			lastUpdatedWeather = tim;
+			redrawWeather = true;
+		}
+#endif
+
+#ifdef WITH_QWEATHER
 		if (!weatherForecast)
 		{
+#endif
 			// Display digits on LCD
 			// Hours + AM/PM for 12h mode
 			if (!mode24h)
@@ -188,11 +211,11 @@ int main(int argc, char ** argv)
 				lcdDrawNumber(spi, display1, t.tm_hour/10, digits);
 				lcdDrawNumber(spi, display2, t.tm_hour%10, digits);
 	#ifdef WITH_QWEATHER
-				if (tim - lastUpdatedWeather > 3600) // Update each hour
+				if (redrawWeather)
 				{
 					int dayoffset = (t.tm_hour >= 18)?1:0;
 					displayWeather(spi, display6, dayoffset, t);
-					lastUpdatedWeather = tim;
+					redrawWeather = false;
 				}
 	#else
 				lcdDrawNumber(spi, display6, SPACE, digits);
@@ -205,22 +228,20 @@ int main(int argc, char ** argv)
 
 			// Blinking colon on each second
 			lcdDrawNumber(spi, display3, ((t.tm_sec % 2) == 0)? COLON:SPACE, digits);
+#ifdef WITH_QWEATHER
 		}
 		else
 		{
 			// Display weather forecast one day per display
-			if (tim - lastUpdatedWeather > 3600) // Update each hour
+			if (redrawWeather)
 			{
-				displayWeather(spi, display1, 0, t);
-				displayWeather(spi, display2, 1, t);
-				displayWeather(spi, display3, 2, t);
-				displayWeather(spi, display4, 3, t);
-				displayWeather(spi, display5, 4, t);
-				displayWeather(spi, display6, 5, t);
-				lastUpdatedWeather = tim;
+				for (int i = 0; i < 6; i++)
+					displayWeather(spi, i+1, i, t);
+				redrawWeather = false;
 			}
 
 		}
+#endif
 		// Wait a little bit to reduce cpu load
 		usleep(50000);
 	}
