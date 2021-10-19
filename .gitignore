@@ -34,3 +34,4 @@
 # build dir
 build
 .vscode
+bin/PiClock
