@@ -32,7 +32,7 @@ When compiled with Weather you need some QT dev package (qtbase5-dev)
 ```
 mkdir build
 cd build
-cmake -DWITH_QWEATHER=ON -DOWAPPID="appID" -DOWLOCATION="location"
+cmake -DWITH_QWEATHER=ON -DOWAPPID="appID" -DOWLOCATION="location" ..
 make -j4
 ```
 ## Running
