@@ -40,6 +40,10 @@ sudo is need to access GPIO:
 ```
 sudo ./PiClock
 ```
+If using the weather version with Qt without display, use the following command line:
+```
+sudo ./PiClock -platform offscreen
+```
 
 # System test bench
 ## Pictures
