@@ -28,7 +28,7 @@
 // Somme globals states
 bool mode24h = true;
 bool weatherForecast = false;
-Theme currentTheme = Theme::SEG14;
+Theme currentTheme = Theme::VFD;
 
 // call aFunction whenever GPIO changes state
 void gpio_callback(int gpio, int level, uint32_t tick)
