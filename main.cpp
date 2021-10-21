@@ -7,6 +7,16 @@
 #include <chrono>
 #include <unistd.h>
 
+#define PIN_BTNA 24 // Change Theme
+#define PIN_BTNB 5 // Switch weather mode / time mode
+#define PIN_BTNC -1 // Not used
+#define PIN_BTND -1 // Not used
+
+// Somme globals states
+bool mode24h = true;
+bool weatherForecast = false;
+Theme currentTheme = Theme::VFD;
+
 // Optionnal Weather
 #ifdef WITH_QWEATHER
 	#include "QWeather/DisplayImageGenerator.h"
@@ -20,15 +30,30 @@
 	bool redrawWeather = true;
 #endif
 
-#define PIN_BTNA 24 // Change Theme
-#define PIN_BTNB 5 // Switch weather mode / time mode
-#define PIN_BTNC -1 // Not used
-#define PIN_BTND -1 // Not used
+#ifdef WITH_HTTP
+#include "HttpServer.h"
+#include <QCoreApplication>
 
-// Somme globals states
-bool mode24h = true;
-bool weatherForecast = false;
-Theme currentTheme = Theme::VFD;
+bool requestCB(const HttpRequest& req)
+{
+        if(req.target == "/weather")
+        {
+			weatherForecast = !weatherForecast;
+			// Force redraw and update
+			lastUpdatedWeather = 0;
+			redrawWeather = true;
+		    return true;
+        }
+        else if (req.target.startsWith("/lcd"))
+        {
+			currentTheme = (Theme)((int)currentTheme + 1);
+			if (currentTheme == Theme::Theme_Number)
+				currentTheme = (Theme) 0;
+			return true;
+        }
+        return false;
+}
+#endif
 
 // call aFunction whenever GPIO changes state
 void gpio_callback(int gpio, int level, uint32_t tick)
@@ -163,6 +188,11 @@ int main(int argc, char ** argv)
 	
 	lcdStartPx(spi);
 
+#ifdef WITH_HTTP
+	HttpServer server(nullptr, requestCB);
+#endif
+
+
 	// Current digits (pointers to images)
 	Digits digits;
 
@@ -241,6 +271,10 @@ int main(int argc, char ** argv)
 			}
 
 		}
+#endif
+
+#ifdef WITH_HTTP
+		QCoreApplication::processEvents();
 #endif
 		// Wait a little bit to reduce cpu load
 		usleep(50000);
