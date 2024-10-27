@@ -123,7 +123,7 @@ void updateWeather(const struct tm& currentime)
 		QPixmap wicon;
 		float mintemp = 0, maxtemp = 0;
 		struct tm forecastdatetime;
-		grabber.grabForecastWeather(OWLOCATION, i, wicon, mintemp, maxtemp, forecastdatetime);
+		grabber.grabForecastWeather(OWLAT, OWLON, i, wicon, mintemp, maxtemp, forecastdatetime);
 
 		weatherImages[i] = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
 	}

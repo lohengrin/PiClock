@@ -10,7 +10,8 @@ option(WITH_QWEATHER "Build with QT based OpenWeather display" OFF)
 option(WITH_HTTP_SERVER "Build with QT based Http server" OFF)
 if (WITH_QWEATHER)
     SET(OWAPPID "" CACHE STRING "Your OpenWeather appId to query weather informations")
-    SET(OWLOCATION "Paris,FR" CACHE STRING "OpenWeather location for grabbig weather")
+    SET(OWLAT "48.8289" CACHE STRING "OpenWeather latitude location for grabbig weather")
+    SET(OWLON "2.2652" CACHE STRING "OpenWeather longitude location for grabbig weather")
     
     find_package(Qt5 COMPONENTS Core Network Gui REQUIRED)
 
@@ -54,7 +55,7 @@ target_link_libraries(PiClock
 
 # Additionnal dependencies when using QT based weather display
 if (WITH_QWEATHER)
-    add_compile_definitions(PiClock OWAPPID="${OWAPPID}" OWLOCATION="${OWLOCATION}" WITH_QWEATHER)
+    add_compile_definitions(PiClock OWAPPID="${OWAPPID}" OWLAT="${OWLAT}" OWLON="${OWLON}" WITH_QWEATHER)
 
     target_link_libraries(PiClock 
         Qt5::Core

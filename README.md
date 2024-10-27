@@ -28,11 +28,11 @@ make -j4
 ### With Weather (QT dev packages needed)
 When compiled with Weather you need some QT dev package (qtbase5-dev)
 - appID: Your own OpenWeatherMap appId
-- location: OpenWeatherMap City location (ex: "Paris,FR")
+- location (lat + lon): OpenWeatherMap Lat/Lon location
 ```
 mkdir build
 cd build
-cmake -DWITH_QWEATHER=ON -DOWAPPID="appID" -DOWLOCATION="location" ..
+cmake -DWITH_QWEATHER=ON -DOWAPPID="appID" -DOWLAT=48.8289 -DOWLON=2.2652 ..
 make -j4
 ```
 ## Running

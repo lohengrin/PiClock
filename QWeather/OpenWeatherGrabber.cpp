@@ -3,59 +3,10 @@
 #include <iostream>
 
 //---------------------------------------------------------------------------------------------------------
-bool OpenWeatherGrabber::grabCurrentWeather(const QString &location, QPixmap &icon, float &mintemp, float &maxtemp)
+bool OpenWeatherGrabber::grabForecastWeather(const QString &lat, const QString &lon, int dayoffset, QPixmap &icon, float &mintemp, float &maxtemp, struct tm& date)
 {
-    QString address = QString("https://api.openweathermap.org/data/2.5/weather?q=%1&units=metric&appid=%2").arg(location, OWAPPID);
-    QUrl url(address);
-    QNetworkRequest req(url);
-
-    QNetworkReply *reply = myNam.get(req);
-
-    while (!reply->isFinished())
-        qApp->processEvents();
-
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        QByteArray response_data = reply->readAll();
-        QJsonDocument json = QJsonDocument::fromJson(response_data);
-
-        //std::cout << json.toJson().toStdString() << std::endl;
-
-        QString iconID = json["weather"][0]["icon"].toString();
-        //std::cout << "Icon: " << iconID.toStdString() << std::endl;
-
-        mintemp = (float) json["main"]["temp_min"].toDouble();
-        maxtemp = (float) json["main"]["temp_max"].toDouble();
-
-        // Store location string to lat/lon for forecast use
-        coords c;
-        c.latitude = json["coord"]["lat"].toDouble();
-        c.longitude = json["coord"]["lon"].toDouble();
-        myLocationMap[location] = c;
-
-
-        // ICON
-        if (!iconID.isEmpty())
-            grabIcon(iconID, icon);
-    }
-
-    reply->deleteLater();
-
-    return true;
-}
-
-//---------------------------------------------------------------------------------------------------------
-bool OpenWeatherGrabber::grabForecastWeather(const QString &location, int dayoffset, QPixmap &icon, float &mintemp, float &maxtemp, struct tm& date)
-{
-    // Location not initialized, use current time request to convert location to lat/lon
-    auto it = myLocationMap.find(location);
-    if (it == myLocationMap.end())
-        grabCurrentWeather(location, icon, mintemp, maxtemp);
-
     // Using OneCall API
-    QString address = 
-        QString("https://api.openweathermap.org/data/2.5/onecall?lat=%1&lon=%2&exclude={part}&appid=%3&units=metric")
-        .arg(myLocationMap[location].latitude).arg(myLocationMap[location].longitude).arg(OWAPPID);
+    QString address = QString("https://api.openweathermap.org/data/3.0/onecall?lat=%1&lon=%2&units=metric&appid=%3&exclude={part}").arg(48.8289).arg(2.2652).arg(OWAPPID);
 
     QUrl url(address);
     QNetworkRequest req(url);
@@ -110,6 +61,10 @@ bool OpenWeatherGrabber::grabForecastWeather(const QString &location, int dayoff
         if (!iconID.isEmpty())
             grabIcon(iconID, icon);
     }
+	else
+	{
+		std::cerr << "Reply Error" << std::endl;
+	}
 
     reply->deleteLater();
 
