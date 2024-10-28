@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(PiClock)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ### optional display weather image generation with QT and Openweather
@@ -10,8 +10,8 @@ option(WITH_QWEATHER "Build with QT based OpenWeather display" OFF)
 option(WITH_HTTP_SERVER "Build with QT based Http server" OFF)
 if (WITH_QWEATHER)
     SET(OWAPPID "" CACHE STRING "Your OpenWeather appId to query weather informations")
-    SET(OWLAT "48.8289" CACHE STRING "OpenWeather latitude location for grabbig weather")
-    SET(OWLON "2.2652" CACHE STRING "OpenWeather longitude location for grabbig weather")
+    SET(OWLAT "48.8289" CACHE STRING "OpenWeather latitude location for grabbing weather")
+    SET(OWLON "2.2652" CACHE STRING "OpenWeather longitude location for grabbing weather")
     
     find_package(Qt5 COMPONENTS Core Network Gui REQUIRED)
 

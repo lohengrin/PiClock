@@ -7,18 +7,22 @@
 class OpenWeatherGrabber 
 {
 public:
+    struct WeatherData {
+        QPixmap icon;       //! icon: filled with OpenWeather icon
+        float mintemp=0;    //! mintemp: minimum temperature in °C
+        float maxtemp=0;    //! maxtemp: maximum temperature in °C
+        struct tm date;     //! date: forecast date/time
+        bool valid=false;
+    };
+
     OpenWeatherGrabber() {}
     virtual ~OpenWeatherGrabber() {}
 
     //! Grab forecast weather for given location
     //! location: in Openweather format (ex: "Paris,FR")
-    //! dayoffset: offset in days from today for the daily forecast
-    //! icon: filled with OpenWeather icon
-    //! mintemp: minimum temperature in °C
-    //! mantemp: maximum temperature in °C
-    //! date: forecast date/time
-    bool grabForecastWeather(const QString& lat, const QString& lon, int dayoffset, QPixmap& icon, float &mintemp, float &maxtemp, struct tm& date);
-
+    //! dayoffsets: list of offsets in days from today for the daily forecast
+    //! results: list of asked forecast
+    bool grabForecastWeather(const QString& lat, const QString& lon, const std::vector<int>& dayoffsets, std::vector<WeatherData> & results);
 
 protected:
     bool grabIcon(const QString& iconname, QPixmap& icon);

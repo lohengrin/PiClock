@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <numeric>
 #include <unistd.h>
 
 #define PIN_BTNA 24 // Change Theme
@@ -26,7 +27,8 @@ Theme currentTheme = Theme::VFD;
 	#include <QtNetwork>
 	time_t lastUpdatedWeather = 0;
 
-	QImage weatherImages[7]; // 0 is current weather 1-6 is J+X
+	const int NBDAYS = 7;
+	QImage weatherImages[NBDAYS]; // 0 is current weather 1-6 is J+X
 	bool redrawWeather = true;
 #endif
 
@@ -118,14 +120,15 @@ void updateWeather(const struct tm& currentime)
     static OpenWeatherGrabber grabber;
     static DisplayImageGenerator generator(80,160);
 
-	for (int i = 0; i < 7; i++)
-	{
-		QPixmap wicon;
-		float mintemp = 0, maxtemp = 0;
-		struct tm forecastdatetime;
-		grabber.grabForecastWeather(OWLAT, OWLON, i, wicon, mintemp, maxtemp, forecastdatetime);
 
-		weatherImages[i] = generator.createWeatherPixmap(wicon, mintemp, maxtemp, forecastdatetime).toImage();
+    std::vector<int> v = {0,1,2,3,4,5,6};
+	std::vector<OpenWeatherGrabber::WeatherData> results;
+	grabber.grabForecastWeather(OWLAT, OWLON, v, results);
+
+	for (int i; i < NBDAYS && i < results.size(); i++)
+	{
+		const OpenWeatherGrabber::WeatherData& wdata = results[i];
+		weatherImages[i] = generator.createWeatherPixmap(wdata.icon, wdata.mintemp, wdata.maxtemp, wdata.date).toImage();
 	}
 }
 
